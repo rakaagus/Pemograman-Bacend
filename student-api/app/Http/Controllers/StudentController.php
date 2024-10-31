@@ -11,7 +11,8 @@ class StudentController extends Controller
         $students = Student::all();
 
         $data = [
-            'message' => 'Get All Student',
+            'error' => false,
+            'message' => 'Get All Student Successfully',
             'data' => $students,
         ];
 
@@ -29,10 +30,72 @@ class StudentController extends Controller
         $student = Student::create($input);
 
         $data = [
-            'messagge' => 'Student is created successfully',
+            'error' => false,
+            'messagge' => 'Student is created Successfully',
             'data' => $student,
         ];
 
         return response()->json($data, 201);
+    }
+
+    public function getOneStudent($id){
+        $student = Student::find($id);
+
+        if(!$student){
+            return response()->json([
+                'error' => true,
+                'message' => 'Student not founds'
+            ], 404);
+        }
+
+        $data = [
+            'error' => false,
+            'message' => 'Get Student',
+            'data' => $student,
+        ];
+
+        return response()->json($data, 200);
+    }
+
+    public function update(Request $request, $id){
+        $student = Student::find($id);
+
+        if(!$student){
+            return response()->json([
+                'error' => true,
+                'message' => 'Student not founds'
+            ], 404);
+        }
+
+        $student->fill($request->only(['nama', 'nim', 'email', 'jurusan']));
+        $student->save();
+
+        $data = [
+            'error' => false,
+            'message' => 'Student Update Successfully',
+            'data' => $student,
+        ];
+
+        return response()->json($data, 200);
+    }
+
+    public function destroy($id){
+        $student = Student::find($id);
+
+        if(!$student){
+            return response()->json([
+                'error' => true,
+                'message' => 'Student not founds'
+            ], 404);
+        }
+
+        $student->delete();
+
+        $data = [
+            'error' => false,
+            'message' => 'Delete Student Successfully',
+        ];
+
+        return response()->json($data, 200);
     }
 }
