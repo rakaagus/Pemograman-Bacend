@@ -38,7 +38,7 @@ class StudentController extends Controller
         return response()->json($data, 201);
     }
 
-    public function getOneStudent($id){
+    public function show($id){
         $student = Student::find($id);
 
         if(!$student){
@@ -46,15 +46,15 @@ class StudentController extends Controller
                 'error' => true,
                 'message' => 'Student not founds'
             ], 404);
+        }else {
+            $data = [
+                'error' => false,
+                'message' => 'Get Student',
+                'data' => $student,
+            ];
+
+            return response()->json($data, 200);
         }
-
-        $data = [
-            'error' => false,
-            'message' => 'Get Student',
-            'data' => $student,
-        ];
-
-        return response()->json($data, 200);
     }
 
     public function update(Request $request, $id){
@@ -65,18 +65,24 @@ class StudentController extends Controller
                 'error' => true,
                 'message' => 'Student not founds'
             ], 404);
+        }else {
+            $input = [
+                'nama' => $request->nama ?? $student->nama,
+                'nim' => $request->nim ?? $student->nim,
+                'email' => $request->email ?? $student->email,
+                'jurusan' => $request->jurusan ?? $student->jurusan
+            ];
+
+            $student->update($input);
+
+            $data = [
+                'error' => false,
+                'message' => 'Student Update Successfully',
+                'data' => $student,
+            ];
+
+            return response()->json($data, 200);
         }
-
-        $student->fill($request->only(['nama', 'nim', 'email', 'jurusan']));
-        $student->save();
-
-        $data = [
-            'error' => false,
-            'message' => 'Student Update Successfully',
-            'data' => $student,
-        ];
-
-        return response()->json($data, 200);
     }
 
     public function destroy($id){
@@ -87,15 +93,15 @@ class StudentController extends Controller
                 'error' => true,
                 'message' => 'Student not founds'
             ], 404);
+        }else {
+            $student->delete();
+
+            $data = [
+                'error' => false,
+                'message' => 'Delete Student Successfully',
+            ];
+
+            return response()->json($data, 200);
         }
-
-        $student->delete();
-
-        $data = [
-            'error' => false,
-            'message' => 'Delete Student Successfully',
-        ];
-
-        return response()->json($data, 200);
     }
 }
