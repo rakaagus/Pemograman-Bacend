@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use Illuminate\Http\Facedas\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
@@ -48,26 +48,32 @@ class LoginController extends Controller
     }
 
     public function login(Request $request){
-        $credentials = $request->only('email', 'password');
+        $input = [
+            'email' => $request->email,
+            'password' => $request->password
+        ];
 
-        if(Auth::attempt($credentials)){
-            return response()->json([
-                'error' => true,
-                'message' => 'Unauthorized User',
-                'data' => []
-            ], 401);
+        $user = User::where('email', $input['email'])->first();
+
+        $isLoginSuccessfully = (
+            $input['email'] == $user->email &&
+            Hash::check($input['password'], $user->password)
+        );
+
+        if ($isLoginSuccessfully) {
+            $token = $user->createToken('auth_token');
+            $data = [
+                'message' => 'Login successfully',
+                'token' => $token->plainTextToken
+            ];
+
+            return response()->json($data, 200);
+        } else {
+            $data = [
+                'message' => 'Username or Password is wrong'
+            ];
+            return response()->json($data, 401);
         }
-
-        $user = Auth::user();
-        $token = $user->crateToken('Api Token')->plainTextToken;
-
-        return response()->json([
-            'error' => false,
-            'message' => 'Login Successfully!',
-            'data' => [
-                'token' => $token
-                ]
-            ], 200);
     }
 
     public function logout(Request $request){
