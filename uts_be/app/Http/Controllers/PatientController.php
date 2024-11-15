@@ -174,18 +174,52 @@ class PatientController extends Controller
     }
 
     public function searchPatientsByName($name){
+        $patients = Patients::with('patientsInfo')
+            ->where('nama', 'like', '%' . $name . '%')
+            ->get();
 
+        if ($patients->isEmpty()) {
+            return response()->json([
+                'error' => true,
+                'message' => 'No patients found with the given name.',
+            ], 404);
+        }
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Patients found',
+            'data' => $patients,
+        ], 200);
     }
 
     public function searchPatientsPositive(){
-
+        return $this->searchPatientsByStatus('positive');
     }
 
     public function searchPatientsRecovered(){
-
+        return $this->searchPatientsByStatus('recovered');
     }
 
     public function searchPatientsDead(){
+        return $this->searchPatientsByStatus('dead');
+    }
 
+    private function searchPatientsByStatus($status) {
+        $patients = Patients::with('patientsInfo')
+            ->where('status', $status)
+            ->get();
+
+        if ($patients->isEmpty()) {
+            return response()->json([
+                'error' => true,
+                'message' => "No patients found with status '{$status}'.",
+            ], 404);
+        }
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Patients found',
+            'data' => $patients,
+        ], 200);
     }
 }
