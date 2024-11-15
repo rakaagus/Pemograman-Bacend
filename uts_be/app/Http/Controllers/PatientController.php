@@ -219,6 +219,7 @@ class PatientController extends Controller
         return response()->json([
             'error' => false,
             'message' => 'Patients found',
+            'total' => $patients->count(),
             'data' => $patients,
         ], 200);
     }
